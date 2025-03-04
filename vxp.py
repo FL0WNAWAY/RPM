@@ -84,9 +84,40 @@ if uploaded_file is not None:
         "Min (cm)": [np.min(amp_ph_max), np.min(amp_ph_min)],
         "Std Dev (cm)": [np.std(amp_ph_max), np.std(amp_ph_min)]
     })
-    result.iloc[:, 1:] = result.iloc[:, 1:].round(1)
+    result.iloc[:, 1:] = result.iloc[:, 1:].astype(float).round(1)
 
     st.write("### Amplitude Threshold Data")
     st.table(result)
+
+   # Calculate duty cycle
+    amp_max, amp_min = 0.2, -0.1
+    rows_in_thres = np.where((amp_corr > amp_min) & (amp_corr < amp_max))[0]
+    duty_cycle = round(len(rows_in_thres) / len(amp_corr) * 100, 0)
+
+    st.write(f"### Duty Cycle: **{duty_cycle}%**")
+
+    # plot corrected trace with gating threshold
+    fig = go.Figure()
+
+    # Add the corrected amplitude trace
+    fig.add_trace(go.Scatter(x=time, y=amp_corr, mode='lines', name='Corrected Amplitude', line=dict(color='blue')))
+
+    # Add horizontal lines for baseline and gating thresholds
+    fig.add_hline(y=0, line=dict(color='black', width=2), name="Baseline")
+    fig.add_hline(y=amp_min, line=dict(color='green', width=2, dash='dash'), name="Gating Threshold (Min)")
+    fig.add_hline(y=amp_max, line=dict(color='green', width=2, dash='dash'), name="Gating Threshold (Max)")
+
+    # Update layout
+    fig.update_layout(
+    title="Corrected Trace with Gating Threshold",
+    xaxis_title="Time (s)",
+    yaxis_title="Amplitude (cm)",
+    legend_title="Legend",
+    template="plotly_white"
+    )
+
+    # Display the figure in Streamlit
+    st.write("### Corrected Trace with Gating Threshold")
+    st.plotly_chart(fig)
 else:
     st.write("No file selected.")

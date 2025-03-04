@@ -69,6 +69,24 @@ if uploaded_file is not None:
     # Display the plot in Streamlit
     st.plotly_chart(fig)
 
+    # Convert phase threshold to amplitude threshold
+    ph_max, ph_min = 75, 25
+    rows_ph_max = np.where(np.abs(phase - ph_max) < 1)[0]
+    rows_ph_min = np.where(np.abs(phase - ph_min) < 1)[0]
+    amp_ph_max = amp_corr[rows_ph_max]
+    amp_ph_min = amp_corr[rows_ph_min]
+    
+    # Store results in DataFrame
+    result = pd.DataFrame({
+        "Amplitude Threshold": ["Upper Phase Amplitude", "Lower Phase Amplitude"],
+        "Mean (cm)": [np.mean(amp_ph_max), np.mean(amp_ph_min)],
+        "Max (cm)": [np.max(amp_ph_max), np.max(amp_ph_min)],
+        "Min (cm)": [np.min(amp_ph_max), np.min(amp_ph_min)],
+        "Std Dev (cm)": [np.std(amp_ph_max), np.std(amp_ph_min)]
+    })
+    result.iloc[:, 1:] = result.iloc[:, 1:].round(1)
 
+    st.write("### Amplitude Threshold Data")
+    st.table(result)
 else:
     st.write("No file selected.")

@@ -2,7 +2,8 @@
 import numpy as np
 import pandas as pd
 import streamlit as st
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
+
 # from scipy.signal import savgol_filter
 # from scipy.stats import linregress
 
@@ -53,15 +54,20 @@ if uploaded_file is not None:
     amp_corr = amp - baseline_corr
 
     # Plot corrected trace
-    st.write("### Smoothed Amplitude Corrected for Baseline Drift")
-    fig, ax = plt.subplots()
-    ax.plot(time, amp_corr, 'b')
-    ax.axhline(0, color='k', linestyle='-', label='Baseline')
-    ax.set_xlabel('Time (s)')
-    ax.set_ylabel('Amplitude (cm)')
-    ax.legend()
-    st.pyplot(fig)
+    st.write("### Amplitude Corrected for Baseline Drift")
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=time, y=amp_corr, mode='lines', name='Amplitude', line=dict(color='blue')))
+    fig.add_hline(y=0, line=dict(color="black", dash="dash"), annotation_text="Baseline", annotation_position="bottom right")
+   
+    # Update layout
+    fig.update_layout(
+    xaxis_title="Time (s)",
+    yaxis_title="Amplitude (cm)",
+    showlegend=True
+    )
 
-
+    # Display the plot in Streamlit
+    st.plotly_chart(fig)
+    
 else:
     st.write("No file selected.")

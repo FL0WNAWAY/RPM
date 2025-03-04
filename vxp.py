@@ -67,8 +67,8 @@ if uploaded_file is not None:
 
     # Convert phase threshold to amplitude threshold
     # Ask the user to input two numbers
-    ph_max = st.number_input("Enter the upper phase threshold (e.g. 75):", value=0, step=1)
-    ph_min = st.number_input("Enter the lower phase (e.g. 25):", value=0, step=1)
+    ph_max = st.number_input("Enter the upper phase threshold (e.g. 75):", value=75, step=10)
+    ph_min = st.number_input("Enter the lower phase threshold (e.g. 25):", value=25, step=10)
     rows_ph_max = np.where(np.abs(phase - ph_max) < 1)[0]
     rows_ph_min = np.where(np.abs(phase - ph_min) < 1)[0]
     amp_ph_max = amp_corr[rows_ph_max]
@@ -82,7 +82,8 @@ if uploaded_file is not None:
         "Min (cm)": [np.min(amp_ph_max), np.min(amp_ph_min)],
         "Std Dev (cm)": [np.std(amp_ph_max), np.std(amp_ph_min)]
     })
-    result.iloc[:, 2:] = result.iloc[:, 2:].astype(float).round(1)
+    result.iloc[:, 1:] = result.iloc[:, 1:].round(1)
+    result = result.applymap(lambda x: f"{x:.1f}")
 
     st.write("### Amplitude Threshold Data")
     st.table(result)

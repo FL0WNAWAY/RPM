@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 # from scipy.signal import savgol_filter
-#from scipy.stats import linregress
+# from scipy.stats import linregress
 
 # Streamlit app
 st.title("VXP file analysis app")
@@ -45,17 +45,6 @@ if uploaded_file is not None:
     # Convert phase from radians to percentile
     phase = data_beam_on['Phase'] / np.pi / 2 * 100
 
-    # Apply Savitzky-Golay filter
-    # amp_sm = savgol_filter(amp, window_length=11, polyorder=3)
-
-    # Plot original vs smoothed data
-    #st.write("### Original vs Smoothed Data")
-    #fig, ax = plt.subplots()
-    #ax.plot(time, amp, 'r--', label='Original')
-    #ax.plot(time, amp_sm, 'b', label='Smoothed')
-    #ax.legend()
-    #st.pyplot(fig)
-
     # Correct for baseline drift
     trough = np.where(data_beam_on['Mark'] == 'P')
     p = np.polyfit(time[trough[0]].astype(float), amp_sm[trough[0]].astype(float), 1)
@@ -72,44 +61,6 @@ if uploaded_file is not None:
     ax.legend()
     st.pyplot(fig)
 
-    # Convert phase threshold to amplitude threshold
-    ph_max, ph_min = 75, 25
-    rows_ph_max = np.where(np.abs(phase - ph_max) < 1)[0]
-    rows_ph_min = np.where(np.abs(phase - ph_min) < 1)[0]
-    amp_ph_max = amp_corr[rows_ph_max]
-    amp_ph_min = amp_corr[rows_ph_min]
 
-    # Store results in DataFrame
-    result = pd.DataFrame({
-        "Amplitude Threshold": ["Upper Phase Amplitude", "Lower Phase Amplitude"],
-        "Mean (cm)": [np.mean(amp_ph_max), np.mean(amp_ph_min)],
-        "Max (cm)": [np.max(amp_ph_max), np.max(amp_ph_min)],
-        "Min (cm)": [np.min(amp_ph_max), np.min(amp_ph_min)],
-        "Std Dev (cm)": [np.std(amp_ph_max), np.std(amp_ph_min)]
-    })
-    result.iloc[:, 1:] = result.iloc[:, 1:].round(1)
-
-    st.write("### Amplitude Threshold Data")
-    st.table(result)
-
-    # Calculate duty cycle
-    amp_max, amp_min = 0.2, -0.1
-    rows_in_thres = np.where((amp_corr > amp_min) & (amp_corr < amp_max))[0]
-    duty_cycle = round(len(rows_in_thres) / len(amp_corr) * 100, 0)
-
-    st.write(f"### Duty Cycle: **{duty_cycle}%**")
-
-    # Plot corrected trace with gating threshold
-    st.write("### Corrected Trace with Gating Threshold")
-    fig, ax = plt.subplots()
-    ax.plot(time, amp_corr, 'b')
-    ax.axhline(0, color='k', linestyle='-', label='Baseline')
-    ax.axhline(amp_min, color='g', linestyle='-', label='Gating Threshold')
-    ax.axhline(amp_max, color='g', linestyle='-')
-    ax.set_xlabel('Time (s)')
-    ax.set_ylabel('Amplitude (cm)')
-    ax.legend()
-    st.pyplot(fig)
-    
 else:
     st.write("No file selected.")

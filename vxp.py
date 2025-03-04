@@ -47,7 +47,7 @@ if uploaded_file is not None:
 
     # Correct for baseline drift
     trough = np.where(data_beam_on['Mark'] == 'P')
-    p = np.polyfit(time[trough[0]].astype(float), amp_sm[trough[0]].astype(float), 1)
+    p = np.polyfit(time[trough[0]].astype(float), amp[trough[0]].astype(float), 1)
     baseline_corr = np.polyval(p, time)
     amp_corr = amp - baseline_corr
 

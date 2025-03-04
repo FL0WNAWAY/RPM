@@ -68,6 +68,7 @@ if uploaded_file is not None:
 
     # Display the plot in Streamlit
     st.plotly_chart(fig)
-    
+
+
 else:
     st.write("No file selected.")

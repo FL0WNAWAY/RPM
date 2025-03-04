@@ -93,7 +93,8 @@ if uploaded_file is not None:
     # Ask the user to input amplitude threshold
     amp_max_mean = (float(result.iloc[0, 1]) + float(result.iloc[1, 1])) / 2
     amp_max_mean = round(amp_max_mean, 1)
-    amp_max = st.number_input("Enter the upper amplitude threshold (mm):", value=amp_max_mean, step=10)
+    st.write(amp_max_mean)
+    amp_max = st.number_input("Enter the upper amplitude threshold (mm):", value=0, step=0.1)
     amp_min = st.number_input("Enter the lower amplitude threshold (mm):", value=-0.1, step=0.1)
     
    # Calculate duty cycle

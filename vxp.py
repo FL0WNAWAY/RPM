@@ -83,7 +83,9 @@ if uploaded_file is not None:
         "Std Dev (cm)": [np.std(amp_ph_max), np.std(amp_ph_min)]
     })
     result.iloc[:, 1:] = result.iloc[:, 1:].round(1)
-    result = result.applymap(lambda x: f"{x:.1f}")
+    
+    # Format the columns to 1 decimal place
+    result.iloc[:, 1:] = result.iloc[:, 1:].applymap(lambda x: f"{x:.1f}")
 
     st.write("### Amplitude Threshold Data")
     st.table(result)

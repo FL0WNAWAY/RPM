@@ -91,7 +91,7 @@ if uploaded_file is not None:
     st.table(result)
 
     # Ask the user to input amplitude threshold
-    amp_max_mean = ((result.at[0, 1] + result.at[1, 1) / 2).round(1)
+    amp_max_mean = ((result.at[0, 1] + result.at[1, 1] / 2).round(1)
     amp_max = st.number_input("Enter the upper amplitude threshold (mm):", value=amp_max_mean, step=10)
     amp_min = st.number_input("Enter the lower amplitude threshold (mm):", value=-0.1, step=0.1)
     

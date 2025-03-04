@@ -94,9 +94,8 @@ if uploaded_file is not None:
     amp_max_mean = (float(result.iloc[0, 1]) + float(result.iloc[1, 1])) / 2
     amp_max_mean = round(amp_max_mean, 1)
     st.write(amp_max_mean)
-    amp_max = st.number_input("Enter the upper phase threshold (e.g. 75):", value=75, step=10)
-    #amp_max = st.number_input("Enter the upper amplitude threshold (mm):", value=0, step=0.1)
-    amp_min = st.number_input("Enter the lower amplitude threshold (mm):", value=-0.1, step=0.1)
+    amp_max = st.number_input("Enter the upper amplitude threshold in mm:", value=0, step=0.1,key="upper_amp")
+    amp_min = st.number_input("Enter the lower amplitude threshold in mm:", value=-0.1, step=0.1,key="lower_amp")
     
    # Calculate duty cycle
     rows_in_thres = np.where((amp_corr > amp_min) & (amp_corr < amp_max))[0]

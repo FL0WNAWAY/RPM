@@ -2,8 +2,8 @@
 import numpy as np
 import pandas as pd
 import streamlit as st
-from scipy.signal import savgol_filter
-from scipy.stats import linregress
+# from scipy.signal import savgol_filter
+#from scipy.stats import linregress
 
 # Streamlit app
 st.title("VXP file analysis app")
@@ -46,21 +46,21 @@ if uploaded_file is not None:
     phase = data_beam_on['Phase'] / np.pi / 2 * 100
 
     # Apply Savitzky-Golay filter
-    amp_sm = savgol_filter(amp, window_length=11, polyorder=3)
+    # amp_sm = savgol_filter(amp, window_length=11, polyorder=3)
 
     # Plot original vs smoothed data
-    st.write("### Original vs Smoothed Data")
-    fig, ax = plt.subplots()
-    ax.plot(time, amp, 'r--', label='Original')
-    ax.plot(time, amp_sm, 'b', label='Smoothed')
-    ax.legend()
-    st.pyplot(fig)
+    #st.write("### Original vs Smoothed Data")
+    #fig, ax = plt.subplots()
+    #ax.plot(time, amp, 'r--', label='Original')
+    #ax.plot(time, amp_sm, 'b', label='Smoothed')
+    #ax.legend()
+    #st.pyplot(fig)
 
     # Correct for baseline drift
     trough = np.where(data_beam_on['Mark'] == 'P')
     p = np.polyfit(time[trough[0]].astype(float), amp_sm[trough[0]].astype(float), 1)
     baseline_corr = np.polyval(p, time)
-    amp_corr = amp_sm - baseline_corr
+    amp_corr = amp - baseline_corr
 
     # Plot corrected trace
     st.write("### Smoothed Amplitude Corrected for Baseline Drift")

@@ -1,21 +1,17 @@
-# -*- coding: utf-8 -*-
 import numpy as np
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
 
-# from scipy.signal import savgol_filter
-# from scipy.stats import linregress
-
 # Streamlit app
-st.title("VXP file analysis app")
+st.title("Breathing Trace Analysis")
 
 # Add a file uploader widget
-uploaded_file = st.file_uploader("Upload a CSV file", type=["csv"])
+uploaded_file = st.file_uploader("Upload the trace csv file", type=["csv"])
 
 if uploaded_file is not None:
     # Display file details
-    st.write(f"You selected: {uploaded_file.name}")
+    # st.write(f"You selected: {uploaded_file.name}")
 
     # Define column names and data types
     column_names = ['Amplitude', 'Phase', 'Time', 'Valid', 'TTLin', 'Mark', 'TTLout']
@@ -54,7 +50,7 @@ if uploaded_file is not None:
     amp_corr = amp - baseline_corr
 
     # Plot corrected trace
-    st.write("### Amplitude Corrected for Baseline Drift")
+    st.write("### Beam-On Amplitude Corrected for Baseline Drift")
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=time, y=amp_corr, mode='lines', name='Amplitude', line=dict(color='blue')))
     fig.add_hline(y=0, line=dict(color="black", dash="dash"), annotation_text="Baseline", annotation_position="bottom right")
@@ -63,14 +59,16 @@ if uploaded_file is not None:
     fig.update_layout(
     xaxis_title="Time (s)",
     yaxis_title="Amplitude (cm)",
-    showlegend=True
+    showlegend=False
     )
 
     # Display the plot in Streamlit
     st.plotly_chart(fig)
 
     # Convert phase threshold to amplitude threshold
-    ph_max, ph_min = 75, 25
+    # Ask the user to input two numbers
+    ph_max = st.number_input("Enter the upper phase threshold (e.g. 75):", value=0, step=1)
+    ph_min = st.number_input("Enter the lower phase (e.g. 25):", value=0, step=1)
     rows_ph_max = np.where(np.abs(phase - ph_max) < 1)[0]
     rows_ph_min = np.where(np.abs(phase - ph_min) < 1)[0]
     amp_ph_max = amp_corr[rows_ph_max]
@@ -84,7 +82,7 @@ if uploaded_file is not None:
         "Min (cm)": [np.min(amp_ph_max), np.min(amp_ph_min)],
         "Std Dev (cm)": [np.std(amp_ph_max), np.std(amp_ph_min)]
     })
-    result.iloc[:, 1:] = result.iloc[:, 1:].astype(float).round(1)
+    result.iloc[:, 2:] = result.iloc[:, 2:].astype(float).round(1)
 
     st.write("### Amplitude Threshold Data")
     st.table(result)

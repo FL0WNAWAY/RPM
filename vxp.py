@@ -98,7 +98,6 @@ if uploaded_file is not None:
     amp_min = st.number_input("Enter the lower amplitude threshold (mm):", value=-0.1, step=0.1)
     
    # Calculate duty cycle
-    amp_max, amp_min = 0.2, -0.1
     rows_in_thres = np.where((amp_corr > amp_min) & (amp_corr < amp_max))[0]
     duty_cycle = round(len(rows_in_thres) / len(amp_corr) * 100, 0)
 

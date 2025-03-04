@@ -66,7 +66,7 @@ if uploaded_file is not None:
     st.plotly_chart(fig)
 
     # Convert phase threshold to amplitude threshold
-    # Ask the user to input two numbers
+    # Ask the user to input phase upper and lower thresholds
     ph_max = st.number_input("Enter the upper phase threshold (e.g. 75):", value=75, step=10)
     ph_min = st.number_input("Enter the lower phase threshold (e.g. 25):", value=25, step=10)
     rows_ph_max = np.where(np.abs(phase - ph_max) < 1)[0]
@@ -90,6 +90,11 @@ if uploaded_file is not None:
     st.write("### Amplitude Threshold Data")
     st.table(result)
 
+    # Ask the user to input amplitude threshold
+    amp_max_mean = ((result.at[0, 1] + result.at[1, 1) / 2).round(1)
+    amp_max = st.number_input("Enter the upper amplitude threshold (mm):", value=amp_max_mean, step=10)
+    amp_min = st.number_input("Enter the lower amplitude threshold (mm):", value=-0.1, step=0.1)
+    
    # Calculate duty cycle
     amp_max, amp_min = 0.2, -0.1
     rows_in_thres = np.where((amp_corr > amp_min) & (amp_corr < amp_max))[0]

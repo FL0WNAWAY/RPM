@@ -27,12 +27,11 @@ if uploaded_file is not None:
 
     # Read CSV
     data = pd.read_csv(uploaded_file, header=None, skiprows=10, names=column_names, dtype=dtype_dict)
-    st.write("### Preview of Uploaded Data")
-    st.dataframe(data.head())
-
     # Identify rows where beam is on
     rows_beam_on = np.where((data['Time'] >= 136000) & (data['Time'] <= 205000))
     data_beam_on = data.iloc[rows_beam_on[0], :].reset_index(drop=True)
+    st.write("### Preview of Uploaded Data")
+    st.dataframe(data_beam_on.head())
 
     # Convert time from ms to s
     time = data_beam_on['Time'] / 1000

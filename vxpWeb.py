@@ -38,10 +38,9 @@ if uploaded_file is not None:
     data['Phase'] = data['Phase'] / np.pi / 2 * 100    
      
     # Identify rows where beam is on
-    if 0 not in data['TTLin'].values:
-        print ("none")
+    if 0 not in data['TTLin'].values: 
         t1 = st.number_input("Enter the start time of 4DCT (s):", value=0, step=1)
-        t2 = st.number_input("Enter the finish time of 4DCT (s):", value=0, step=1)
+        t2 = st.number_input("Enter the finish time of 4DCT (s):", value=round(np.max(data['Time'])), step=1)
         rows_beam_on = np.where((data['Time'] >= t1) & (data['Time'] <= t2))
 
     else:
@@ -57,9 +56,9 @@ if uploaded_file is not None:
     with col1:
         apply_corr = st.checkbox("Correct for baseline")
     with col2:
-        show0 = st.checkbox("Check peaks / 0% phase")
+        show0 = st.checkbox("Check peaks")
     with col3:
-        show50 = st.checkbox("Check troughs / 50% phase")       
+        show50 = st.checkbox("Check troughs")       
 
 
     # Correct for baseline drift
@@ -102,16 +101,17 @@ if uploaded_file is not None:
 
     ax.plot(data_beam_on['Time'], amp_corr, color='blue', label='Amplitude')
     
+    ppeak = np.zeros(np.size(data_beam_on['Time']))
+    rows_ph_peak = np.where(data_beam_on['Mark'] == 'Z' )[0]
+    ppeak[rows_ph_peak] = amp_corr[rows_ph_peak]
+    ptrough = np.zeros(np.size(data_beam_on['Time']))
+    rows_ph_trough = np.where(data_beam_on['Mark'] == 'P' )[0]
+    ptrough[rows_ph_trough] = amp_corr[rows_ph_trough]
+
     if show0:
-        ppeak = np.zeros(np.size(data_beam_on['Time']))
-        rows_ph_peak = np.where(data_beam_on['Phase'] == 0)[0]
-        ppeak[rows_ph_peak] = amp_corr[rows_ph_peak]
-        ax.plot(data_beam_on['Time'], ppeak, color='magenta', label='0% phase')
+        ax.plot(data_beam_on['Time'], ppeak, color='magenta', label='peak')
     if show50:
-        ptrough = np.zeros(np.size(data_beam_on['Time']))
-        rows_ph_trough = np.where(np.abs(data_beam_on['Phase'] - 50) < 1)[0]
-        ptrough[rows_ph_trough] = amp_corr[rows_ph_trough]      
-        ax.plot(data_beam_on['Time'], ptrough, color='cyan', label='50% phase')
+        ax.plot(data_beam_on['Time'], ptrough, color='cyan', label='trough')
     
     ax.axhline(y=0, color='black', linestyle='dashed', label='Baseline')
     
@@ -125,26 +125,34 @@ if uploaded_file is not None:
 
     # Convert phase threshold to amplitude threshold
     # Ask the user to input phase upper and lower thresholds
-    ph_max = st.number_input("Enter the upper phase threshold (e.g. 75):", value=75, step=10)
-    ph_min = st.number_input("Enter the lower phase threshold (e.g. 25):", value=25, step=10)
+    ph_1 = st.number_input("Enter the starting phase threshold (e.g. 30):", value=30, step=10)
+    ph_2 = st.number_input("Enter the ending phase threshold (e.g. 70):", value=70, step=10)
+    if ph_1 < ph_2:
+        ph_min = ph_1 - 5
+        ph_max = ph_2 + 5
+    else:
+        ph_min = ph_2 + 5
+        ph_max = ph_1 - 5
     rows_ph_max = np.where(np.abs(data_beam_on['Phase'] - ph_max) < 1)[0]
     rows_ph_min = np.where(np.abs(data_beam_on['Phase'] - ph_min) < 1)[0]
     amp_ph_max = amp_corr[rows_ph_max]
     amp_ph_min = amp_corr[rows_ph_min]
     
     # Store results in DataFrame
+
     result = pd.DataFrame({
-        "Amplitude Threshold": ["Upper Phase Amplitude", "Lower Phase Amplitude"],
-        "Mean (cm)": [np.mean(amp_ph_max), np.mean(amp_ph_min)],
-        "Max (cm)": [np.max(amp_ph_max), np.max(amp_ph_min)],
-        "Min (cm)": [np.min(amp_ph_max), np.min(amp_ph_min)],
-        "Std Dev (cm)": [np.std(amp_ph_max), np.std(amp_ph_min)]
+        "Amplitude Threshold": ["Starting Phase Amplitude", "Ending Phase Amplitude"],
+        "Mean (cm)": [np.mean(amp_ph_min), np.mean(amp_ph_max)],
+        "Max (cm)": [np.max(amp_ph_min), np.max(amp_ph_max)],
+        "Min (cm)": [np.min(amp_ph_min), np.min(amp_ph_max)],
+        "Std Dev (cm)": [np.std(amp_ph_min), np.std(amp_ph_max)]
     })
-    result.iloc[:, 1:] = result.iloc[:, 1:].round(1)
+    result.iloc[:, 1:] = result.iloc[:, 1:].round(2)
+    #result.iloc[:, 1:] = round(result.iloc[:, 1:] / 0.05) * 0.05
     
     # Format the columns to 1 decimal place
     #result.iloc[:, 1:] = result.iloc[:, 1:].applymap(lambda x: f"{x:.1f}")
-    styled_result=result.style.format({col: '{:.1f}' for col in ["Mean (cm)", "Max (cm)", "Min (cm)", "Std Dev (cm)"]}).set_properties(**{'text-align': 'center'})
+    styled_result=result.style.format({col: '{:.2f}' for col in ["Mean (cm)", "Max (cm)", "Min (cm)", "Std Dev (cm)"]}).set_properties(**{'text-align': 'center'})
 
     st.write("### Amplitude Threshold Data")
     #st.table(result)
@@ -153,9 +161,13 @@ if uploaded_file is not None:
 
     # Ask the user to input amplitude threshold
     amp_max_mean = (float(result.iloc[0, 1]) + float(result.iloc[1, 1])) / 2
-    amp_max_mean = round(amp_max_mean, 1)
-    amp_max = st.number_input("Enter the upper amplitude threshold in cm:", value=amp_max_mean, step=0.1,key="upper_amp")
-    amp_min = st.number_input("Enter the lower amplitude threshold in cm:", value=-0.1, step=0.1,key="lower_amp")
+    amp_max_mean = round(amp_max_mean,2)
+    if ph_1 < ph_2:
+        amp_max = st.number_input("Enter the upper amplitude threshold in cm:", value=amp_max_mean, step=0.01,key="upper_amp")
+        amp_min = st.number_input("Enter the lower amplitude threshold in cm:", value=np.min(amp_corr[rows_ph_trough]).round(2), step=0.01,key="lower_amp")
+    else:
+        amp_max = st.number_input("Enter the upper amplitude threshold in cm:", value=np.max(amp_corr[rows_ph_peak]).round(2), step=0.01,key="upper_amp")
+        amp_min = st.number_input("Enter the lower amplitude threshold in cm:", value=amp_max_mean, step=0.01,key="lower_amp")
     
    # Calculate duty cycle
     rows_in_thres = np.where((amp_corr > amp_min) & (amp_corr < amp_max))[0]

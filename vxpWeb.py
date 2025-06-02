@@ -125,8 +125,8 @@ if uploaded_file is not None:
 
     # Convert phase threshold to amplitude threshold
     # Ask the user to input phase upper and lower thresholds
-    ph_1 = st.number_input("Enter the starting phase threshold (e.g. 30):", value=30, step=10)
-    ph_2 = st.number_input("Enter the ending phase threshold (e.g. 70):", value=70, step=10)
+    ph_1 = st.number_input("Enter the starting phase (e.g. 30):", value=30, step=10)
+    ph_2 = st.number_input("Enter the ending phase (e.g. 70):", value=70, step=10)
     if ph_1 < ph_2:
         ph_min = ph_1 - 5
         ph_max = ph_2 + 5
@@ -178,9 +178,9 @@ if uploaded_file is not None:
     # Checkbox for showing upper / lower phases
     col_pmin, col_pmax = st.columns(2)
     with col_pmin:
-        showmin = st.checkbox("Check lower phase limit")
+        showmin = st.checkbox("Check starting phase amplitude")
     with col_pmax:
-        showmax = st.checkbox("Check upper phase limit")
+        showmax = st.checkbox("Check ending phase amplitude")
 
     # plot trace with gating threshold
      

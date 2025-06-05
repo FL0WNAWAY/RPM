@@ -193,12 +193,12 @@ if uploaded_file is not None:
         pmin = np.zeros(np.size(data_beam_on['Time']))
         rows_ph_min = np.where(np.abs(data_beam_on['Phase'] - ph_min) < 1)[0] 
         pmin[rows_ph_min] = amp_corr[rows_ph_min]
-        ax.plot(data_beam_on['Time'], pmin, color='magenta', label='lower phase limit')
+        ax.plot(data_beam_on['Time'], pmin, color='magenta', label='starting phase amplitude')
     if showmax:
         pmax = np.zeros(np.size(data_beam_on['Time']))
         rows_ph_max = np.where(np.abs(data_beam_on['Phase'] - ph_max) < 1)[0]    
         pmax[rows_ph_max] = amp_corr[rows_ph_max]
-        ax.plot(data_beam_on['Time'], pmax, color='cyan', label='upper phase limit')
+        ax.plot(data_beam_on['Time'], pmax, color='cyan', label='ending phase amplitude')
 
     # Add labels and legend
     ax.set_xlabel("Time (s)")
